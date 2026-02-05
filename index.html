@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>지민의 마음 안식처</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            color: #333;
+        }
+        h1 {
+            margin-bottom: 20px;
+            color: #4a90e2;
+        }
+        .chat-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            max-width: 90%;
+            height: 400px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .messages {
+            flex: 1;
+            padding: 10px;
+            overflow-y: auto;
+            border-bottom: 1px solid #ddd;
+        }
+        .input-area {
+            display: flex;
+            border-top: 1px solid #ddd;
+        }
+        .input-area input {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 0 0 0 10px;
+        }
+        .input-area button {
+            padding: 10px;
+            border: none;
+            background-color: #4a90e2;
+            color: white;
+            border-radius: 0 0 10px 0;
+            cursor: pointer;
+        }
+        .premium {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .premium a {
+            color: #4a90e2;
+            text-decoration: none;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>지민의 마음 안식처</h1>
+    <div class="chat-container">
+        <div class="messages" id="messages"></div>
+        <div class="input-area">
+            <input type="text" id="userInput" placeholder="여기에 메시지를 입력하세요..." />
+            <button id="sendButton">전송</button>
+        </div>
+    </div>
+    <div class="premium">
+        <p>프리미엄 상담을 신청하세요!</p>
+        <a href="#">신청하기</a>
+    </div>
+
+    <script>
+        const messagesDiv = document.getElementById('messages');
+        const userInput = document.getElementById('userInput');
+        const sendButton = document.getElementById('sendButton');
+
+        async function generateResponse(userText) {
+    const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: userText })
+    });
+    const data = await response.json();
+    return data.reply;
+}
+
+sendButton.addEventListener('click', async () => {
+    const userText = userInput.value;
+    if (userText.trim() !== '') {
+        addMessage(`나: ${userText}`, 'user');
+        userInput.value = '';
+
+        const botReply = await generateResponse(userText);
+        addMessage(`챗봇: ${botReply}`, 'bot');
+    }
+});
+
+        function addMessage(text, sender) {
+            const messageElement = document.createElement('div');
+            messageElement.textContent = text;
+            messageElement.className = sender;
+            messagesDiv.appendChild(messageElement);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight; // 자동 스크롤
+        }
+
+        async function generateResponse(input) {
+  const response = await fetch('/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message: input })
+  });
+  const data = await response.json();
+  return data.reply;
+}
+    </script>
+</body>
+</html>
